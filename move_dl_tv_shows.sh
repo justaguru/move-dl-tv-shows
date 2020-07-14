@@ -20,6 +20,7 @@ else
 fi
 
 deleteEXT=("nfo" "exe" "txt")
+moviesEXT=("mkv" "avi" "mp4")
 doCreatDirs="createDirs.do"
 logfile="activity.log"
 
@@ -37,6 +38,7 @@ declare -A shows=(
 ["Penny_Dreadful_City_of_Angels"]="*Penny.Dreadful.City.of.Angels*"
 ["Stargirl"]="*Stargirl*"
 ["The_Late_Show_with_Stephen_Colbert"]="*Late.Show.Colbert*"
+["The_Late_Show_with_Stephen_Colbert"]="*Stephen.Colbert*"
 )
 
 
@@ -46,19 +48,17 @@ DOOUT="$SOURCE$doCreatDirs"
 RAN=$(date '+%Y:%m:%d:%H:%M')
 echo "$RAN" >> "$LOGOUT"
 
-# shows... [Folder]=search_string
-function move_if_dir_exists () {
-	echo "In function..."
+move_if_dir_exists () {
 	file=$1
 	dest=$2
-	echo "File: $file  to $dest"
+	simpleFile="${file##*/}"
+
+	#echo "File: $file  to $dest"
 	if [[ -d $dest ]]
 	then
-       		echo "EXISTS! $dest"
-		echo "Move $file"
-		echo "...... to: $dest"
+       	echo "EXISTS! $dest"
 		mv -v "$file" "$dest"
-		echo "MOVED $file --> $dest" >> "$LOGOUT"
+		echo "MOVED $simpleFile --> $dest" | tee -a "$LOGOUT"
 	else
 		echo "MISSING DIR: $dest"
 		echo "Create Dir: $dest" >> "$DOOUT"
@@ -70,16 +70,32 @@ export -f move_if_dir_exists
 # Remove todo list if exists
 [ -f "$DOOUT" ] && rm "$DOOUT"
 
+declare -A matchFull=()
 for key in ${!shows[@]}; do 
 	searchFor=${shows[$key]}; 
 	outDir="$DESTINATION$key/"
-	find $SOURCE -type f -iname "$searchFor" | grep -i 'avi$\|mkv$\|mp4$' | xargs -n 1 -I{} bash -c 'move_if_dir_exists "$@"' _ {} "$outDir"
-	#echo $key = ${shows[$key]}; 
+	for ext in ${moviesEXT[@]}; do
+		while IFS= read -r -d $'\0'; do
+        		matchFull+=(["$REPLY"]="$outDir")
+		done < <(find "$SOURCE" -type f -iname "$searchFor${ext}" -print0)
+	done
+done
+echo "Possible # of shows to move: ${#matchFull[@]}"
+
+for file in ${!matchFull[@]}; do
+	DEST="${matchFull[$file]}"
+	#echo "move_if_dir_exists ${file} $DEST"
+	move_if_dir_exists "${file}" "$DEST"
 done
 
 echo "Delete extra files and empty directories..."
 # remove non-video files
-find $SOURCE -type f -iname "*.txt" -o -iname "*.exe" -o -iname "*.nfo" | xargs -I {} -n 1 rm -v "{}"
+for badext in ${deleteEXT[@]}; do
+	echo "Hi"
+	find $SOURCE -type f -iname "*.${badext}" | xargs -I {} -n 1 rm -v "{}"
+done
+#find $SOURCE -type f -iname "*.txt" -o -iname "*.exe" -o -iname "*.nfo" | xargs -I {} -n 1 rm -v "{}"
+
 
 # delete any empty dirs below SOURCE
 find $SOURCE -mindepth 1 -type d -empty -print -delete
