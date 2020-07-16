@@ -24,25 +24,27 @@ moviesEXT=("mkv" "avi" "mp4")
 doCreatDirs="createDirs.do"
 logfile="activity.log"
 
+# List of show search patterns, with what folder to put them in. Can have multiple pattern lines per show.
 declare -A shows=(
-["60_Minutes"]="*60.Minutes*"
-["Broke"]="*Broke*"
-["DCs_Legends_of_Tomorrow"]="*Legends.of.Tomorrow*"
-["Doom_Patrol"]="*Doom.Patrol*"
-["Harley_Quinn"]="*Harley.Quinn*"
-["Holey_Moley"]="*Holey.Moley*"
-["Hollywood_Game_Night"]="*Hollywood.Game.Night*"
-["Last_Week_Tonight_with_John_Oliver"]="*Last.Week.Tonight*"
-["Marvel's_Agents_of_S.H.I.E.L.D"]="*Marvels.Agents.of.S.H.I.E.L.D.*"
-["Penn_&_Teller_Fool_Us"]="*Penn.And.Teller.Fool.Us*"
-["Penny_Dreadful_City_of_Angels"]="*Penny.Dreadful.City.of.Angels*"
-["Stargirl"]="*Stargirl*"
-["The_Late_Show_with_Stephen_Colbert"]="*Late.Show.Colbert*"
-["The_Late_Show_with_Stephen_Colbert"]="*Stephen.Colbert*"
+["*60.Minutes*"]="60_Minutes"
+["*Broke*"]="Broke"
+["*Doom.Patrol*"]="Doom_Patrol"
+["*Harley.Quinn*"]="Harley_Quinn"
+["*Holey.Moley*"]="Holey_Moley"
+["*Hollywood.Game.Night*"]="Hollywood_Game_Night"
+["*Last.Week.Tonight*"]="Last_Week_Tonight_with_John_Oliver"
+["*Legends.of.Tomorrow*"]="DCs_Legends_of_Tomorrow"
+["*Marvels.Agents.of.S.H.I.E.L.D.*"]="Marvel's_Agents_of_S.H.I.E.L.D"
+["*Penn.And.Teller.Fool.Us*"]="Penn_&_Teller_Fool_Us"
+["*Penny.Dreadful.City.of.Angels*"]="Penny_Dreadful_City_of_Angels"
+["*Stargirl*"]="Stargirl"
+["*Stephen.Colbert*"]="The_Late_Show_with_Stephen_Colbert"
+["*Late.Show.Colbert*"]="The_Late_Show_with_Stephen_Colbert"
 )
 
-
+#
 # should not have to modify anything below here
+#
 LOGOUT="$SOURCE$logfile"
 DOOUT="$SOURCE$doCreatDirs"
 RAN=$(date '+%Y:%m:%d:%H:%M')
@@ -51,6 +53,7 @@ echo "$RAN" >> "$LOGOUT"
 move_if_dir_exists () {
 	file=$1
 	dest=$2
+	# filename, everything after last / in path/parts/filename
 	simpleFile="${file##*/}"
 
 	#echo "File: $file  to $dest"
@@ -70,18 +73,23 @@ export -f move_if_dir_exists
 # Remove todo list if exists
 [ -f "$DOOUT" ] && rm "$DOOUT"
 
+
 declare -A matchFull=()
-for key in ${!shows[@]}; do 
-	searchFor=${shows[$key]}; 
-	outDir="$DESTINATION$key/"
+# Loop through all show patterns and look for matching files, add matches to hash array
+for searchFor in ${!shows[@]}; do 
+	folder=${shows[$searchFor]}; 
+	#searchFor=${shows[$key]}; 
+	outDir="$DESTINATION$folder/"
 	for ext in ${moviesEXT[@]}; do
 		while IFS= read -r -d $'\0'; do
         		matchFull+=(["$REPLY"]="$outDir")
 		done < <(find "$SOURCE" -type f -iname "$searchFor${ext}" -print0)
+	#echo "find $SOURCE -type f -iname $searchFor${ext} -print0"
 	done
 done
 echo "Possible # of shows to move: ${#matchFull[@]}"
 
+# Go through all matches and move them to correct folder
 for file in ${!matchFull[@]}; do
 	DEST="${matchFull[$file]}"
 	#echo "move_if_dir_exists ${file} $DEST"
@@ -91,7 +99,7 @@ done
 echo "Delete extra files and empty directories..."
 # remove non-video files
 for badext in ${deleteEXT[@]}; do
-	echo "Hi"
+	#echo "Hi"
 	find $SOURCE -type f -iname "*.${badext}" | xargs -I {} -n 1 rm -v "{}"
 done
 #find $SOURCE -type f -iname "*.txt" -o -iname "*.exe" -o -iname "*.nfo" | xargs -I {} -n 1 rm -v "{}"
