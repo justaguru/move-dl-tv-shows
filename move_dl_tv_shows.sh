@@ -23,6 +23,7 @@ deleteEXT=("nfo" "exe" "txt")
 moviesEXT=("mkv" "avi" "mp4")
 doCreatDirs="createDirs.do"
 logfile="activity.log"
+createDir=0
 
 # List of show search patterns, with what folder to put them in. Can have multiple pattern lines per show.
 declare -A shows=(
@@ -56,6 +57,10 @@ move_if_dir_exists () {
 	# filename, everything after last / in path/parts/filename
 	simpleFile="${file##*/}"
 
+	if [[ ! -d $dest ]] -a [[ $createDir ]]
+	then
+		mkdir -v "$dest"
+	fi
 	#echo "File: $file  to $dest"
 	if [[ -d $dest ]]
 	then
