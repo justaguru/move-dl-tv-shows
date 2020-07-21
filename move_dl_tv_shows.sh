@@ -47,17 +47,18 @@ declare -A shows=(
 # should not have to modify anything below here
 #
 LOGOUT="$SOURCE$logfile"
+TMPFILE="$SOURCE/tmp.$$"
 DOOUT="$SOURCE$doCreatDirs"
 RAN=$(date '+%Y:%m:%d:%H:%M')
 echo "$RAN" >> "$LOGOUT"
 
 move_if_dir_exists () {
-	file=$1
-	dest=$2
+	file="$1"
+	dest="$2"
 	# filename, everything after last / in path/parts/filename
 	simpleFile="${file##*/}"
 
-	if [[ ! -d $dest ]] -a [[ $createDir ]]
+	if [[ ! -d $dest ]] && [[ $createDir ]]
 	then
 		mkdir -v "$dest"
 	fi
@@ -83,12 +84,12 @@ declare -A matchFull=()
 # Loop through all show patterns and look for matching files, add matches to hash array
 for searchFor in ${!shows[@]}; do 
 	folder=${shows[$searchFor]}; 
-	#searchFor=${shows[$key]}; 
 	outDir="$DESTINATION$folder/"
 	for ext in ${moviesEXT[@]}; do
-		while IFS= read -r -d $'\0'; do
-        		matchFull+=(["$REPLY"]="$outDir")
-		done < <(find "$SOURCE" -type f -iname "$searchFor${ext}" -print0)
+		find "$SOURCE" -type f -iname "$searchFor${ext}" -print > "$TMPFILE"
+		while IFS= read -r line; do
+        		matchFull+=(["$line"]="$outDir")
+		done < "$TMPFILE"
 	#echo "find $SOURCE -type f -iname $searchFor${ext} -print0"
 	done
 done
@@ -108,7 +109,8 @@ for badext in ${deleteEXT[@]}; do
 	find $SOURCE -type f -iname "*.${badext}" | xargs -I {} -n 1 rm -v "{}"
 done
 #find $SOURCE -type f -iname "*.txt" -o -iname "*.exe" -o -iname "*.nfo" | xargs -I {} -n 1 rm -v "{}"
-
+# cleanup tmp file
+[ -e "$TMPFILE" ] && rm "$TMPFILE"
 
 # delete any empty dirs below SOURCE
 find $SOURCE -mindepth 1 -type d -empty -print -delete
