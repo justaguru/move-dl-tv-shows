@@ -61,6 +61,7 @@ move_if_dir_exists () {
 	if [[ ! -d $dest ]] && [[ $createDir ]]
 	then
 		mkdir -v "$dest"
+		echo "CREATED DIR $dest" | tee -a "$LOGOUT"
 	fi
 	#echo "File: $file  to $dest"
 	if [[ -d $dest ]]
