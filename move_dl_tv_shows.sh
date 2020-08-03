@@ -23,7 +23,9 @@ deleteEXT=("nfo" "exe" "txt")
 moviesEXT=("mkv" "avi" "mp4")
 doCreatDirs="createDirs.do"
 logfile="activity.log"
-createDir=0
+createDir=1
+createFileInDir=1	# because Plex deletes empty folders, so keep a .txt file if you want the folder to stay
+emptyFileName="folder.txt"
 
 # List of show search patterns, with what folder to put them in. Can have multiple pattern lines per show.
 declare -A shows=(
@@ -41,6 +43,7 @@ declare -A shows=(
 ["*Stargirl*"]="Stargirl"
 ["*Stephen.Colbert*"]="The_Late_Show_with_Stephen_Colbert"
 ["*Late.Show.Colbert*"]="The_Late_Show_with_Stephen_Colbert"
+["*Wynonna.Earp*"]="Wynonna_Earp"
 )
 
 #
@@ -62,6 +65,10 @@ move_if_dir_exists () {
 	then
 		mkdir -v "$dest"
 		echo "CREATED DIR $dest" | tee -a "$LOGOUT"
+		if [[ $createFileInDir ]]
+		then
+			touch "$dest$emptyFileName"
+		fi
 	fi
 	#echo "File: $file  to $dest"
 	if [[ -d $dest ]]
