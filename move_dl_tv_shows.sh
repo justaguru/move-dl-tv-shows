@@ -25,11 +25,12 @@ doCreatDirs="createDirs.do"
 logfile="activity.log"
 createDir=1
 createFileInDir=1	# because Plex deletes empty folders, so keep a .txt file if you want the folder to stay
-emptyFileName="folder.txt"
+emptyFileName="donotdelete.txt"
 
 # List of show search patterns, with what folder to put them in. Can have multiple pattern lines per show.
 declare -A shows=(
 ["*60.Minutes*"]="60_Minutes"
+["*Black-ish*"]="Blackish"
 ["*Broke*"]="Broke"
 ["*Doom.Patrol*"]="Doom_Patrol"
 ["*Harley.Quinn*"]="Harley_Quinn"
