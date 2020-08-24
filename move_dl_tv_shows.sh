@@ -19,7 +19,7 @@ else
 	exit -1
 fi
 
-deleteEXT=("nfo" "exe" "txt")
+deleteEXT=("nfo" "exe" "txt" "jpg")
 moviesEXT=("mkv" "avi" "mp4")
 doCreatDirs="createDirs.do"
 logfile="activity.log"
@@ -31,6 +31,7 @@ emptyFileName="donotdelete.txt"
 declare -A shows=(
 ["*60.Minutes*"]="60_Minutes"
 ["*Black-ish*"]="Blackish"
+["*Bob.Hearts.Abishola*"]="Bob_Hearts_Abishola"
 ["*Broke*"]="Broke"
 ["*Doom.Patrol*"]="Doom_Patrol"
 ["*Harley.Quinn*"]="Harley_Quinn"
@@ -38,6 +39,7 @@ declare -A shows=(
 ["*Hollywood.Game.Night*"]="Hollywood_Game_Night"
 ["*Last.Week.Tonight*"]="Last_Week_Tonight_with_John_Oliver"
 ["*Legends.of.Tomorrow*"]="DCs_Legends_of_Tomorrow"
+["*Lucifer*"]="Lucifer"
 ["*Marvels.Agents.of.S.H.I.E.L.D.*"]="Marvel's_Agents_of_S.H.I.E.L.D"
 ["*Penn.And.Teller.Fool.Us*"]="Penn_&_Teller_Fool_Us"
 ["*Penny.Dreadful.City.of.Angels*"]="Penny_Dreadful_City_of_Angels"
