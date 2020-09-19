@@ -43,9 +43,10 @@ declare -A shows=(
 ["*Marvels.Agents.of.S.H.I.E.L.D.*"]="Marvel's_Agents_of_S.H.I.E.L.D"
 ["*Penn.And.Teller.Fool.Us*"]="Penn_&_Teller_Fool_Us"
 ["*Penny.Dreadful.City.of.Angels*"]="Penny_Dreadful_City_of_Angels"
+["*Star.Trek.Lower.Decks*"]="Star_Trek_Lower_Decks"
 ["*Stargirl*"]="Stargirl"
-["*Stephen.Colbert*"]="The_Late_Show_with_Stephen_Colbert"
-["*Late.Show.Colbert*"]="The_Late_Show_with_Stephen_Colbert"
+["*Stephen?Colbert*"]="The_Late_Show_with_Stephen_Colbert"
+["*Late?Show?Colbert*"]="The_Late_Show_with_Stephen_Colbert"
 ["*Wynonna.Earp*"]="Wynonna_Earp"
 )
 
@@ -107,7 +108,7 @@ done
 echo "Possible # of shows to move: ${#matchFull[@]}"
 
 # Go through all matches and move them to correct folder
-for file in ${!matchFull[@]}; do
+for file in "${!matchFull[@]}"; do
 	DEST="${matchFull[$file]}"
 	#echo "move_if_dir_exists ${file} $DEST"
 	move_if_dir_exists "${file}" "$DEST"
@@ -116,7 +117,6 @@ done
 echo "Delete extra files and empty directories..."
 # remove non-video files
 for badext in ${deleteEXT[@]}; do
-	#echo "Hi"
 	find $SOURCE -type f -iname "*.${badext}" | xargs -I {} -n 1 rm -v "{}"
 done
 #find $SOURCE -type f -iname "*.txt" -o -iname "*.exe" -o -iname "*.nfo" | xargs -I {} -n 1 rm -v "{}"
